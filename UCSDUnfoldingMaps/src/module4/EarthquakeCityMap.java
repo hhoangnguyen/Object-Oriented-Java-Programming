@@ -1,7 +1,9 @@
 package module4;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.data.Feature;
@@ -13,6 +15,7 @@ import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
+import de.fhpotsdam.unfolding.providers.Microsoft;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import parsing.ParseFeed;
 import processing.core.PApplet;
@@ -33,6 +36,8 @@ public class EarthquakeCityMap extends PApplet {
 	
 	// You can ignore this.  It's to get rid of eclipse warnings
 	private static final long serialVersionUID = 1L;
+
+	private static final String OCEAN_QUAKES_KEY = "OCEAN QUAKES";
 
 	// IF YOU ARE WORKING OFFILINE, change the value of this variable to true
 	private static final boolean offline = false;
@@ -59,6 +64,8 @@ public class EarthquakeCityMap extends PApplet {
 
 	// A List of country markers
 	private List<Marker> countryMarkers;
+
+	public HashMap<String, Object> countryEarchquakeCounts = new HashMap<>();
 	
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
@@ -68,16 +75,16 @@ public class EarthquakeCityMap extends PApplet {
 		    earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 200, 50, 650, 600, new Microsoft.AerialProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-		    //earthquakesURL = "2.5_week.atom";
+		    earthquakesURL = "2.5_week.atom";
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
 		// FOR TESTING: Set earthquakesURL to be one of the testing files by uncommenting
 		// one of the lines below.  This will work whether you are online or offline
-		//earthquakesURL = "test1.atom";
-		//earthquakesURL = "test2.atom";
+		// earthquakesURL = "test1.atom";
+		// earthquakesURL = "test2.atom";
 		
 		// WHEN TAKING THIS QUIZ: Uncomment the next line
 		//earthquakesURL = "quiz1.atom";
@@ -168,11 +175,9 @@ public class EarthquakeCityMap extends PApplet {
 		// country in m.  Notice that isInCountry takes a PointFeature
 		// and a Marker as input.  
 		// If isInCountry ever returns true, isLand should return true.
-		for (Marker m : countryMarkers) {
-			// TODO: Finish this method using the helper method isInCountry
-			
+		for (Marker countryMarker : countryMarkers) {
+			if (this.isInCountry(earthquake, countryMarker)) return true;
 		}
-		
 		
 		// not inside any country
 		return false;
@@ -186,38 +191,52 @@ public class EarthquakeCityMap extends PApplet {
 	 * */
 	private void printQuakes() 
 	{
-		// TODO: Implement this method
-		// One (inefficient but correct) approach is to:
-		//   Loop over all of the countries, e.g. using 
-		//        for (Marker cm : countryMarkers) { ... }
-		//        
-		//      Inside the loop, first initialize a quake counter.
-		//      Then loop through all of the earthquake
-		//      markers and check to see whether (1) that marker is on land
-		//     	and (2) if it is on land, that its country property matches 
-		//      the name property of the country marker.   If so, increment
-		//      the country's counter.
-		
-		// Here is some code you will find useful:
-		// 
-		//  * To get the name of a country from a country marker in variable cm, use:
-		//     String name = (String)cm.getProperty("name");
-		//  * If you have a reference to a Marker m, but you know the underlying object
-		//    is an EarthquakeMarker, you can cast it:
-		//       EarthquakeMarker em = (EarthquakeMarker)m;
-		//    Then em can access the methods of the EarthquakeMarker class 
-		//       (e.g. isOnLand)
-		//  * If you know your Marker, m, is a LandQuakeMarker, then it has a "country" 
-		//      property set.  You can get the country with:
-		//        String country = (String)m.getProperty("country");
-		
-		
+		// loop through countryMarkers and save them to HashMap using country's "name" as key
+		for (Marker countryMarker : this.countryMarkers) {
+			String countryName = (String) countryMarker.getProperty("name");
+			// initialize an item in HashMap with key = countryName and initial count 0
+			this.countryEarchquakeCounts.put(countryName, 0);
+		}
+
+		// ocean quake
+		this.countryEarchquakeCounts.put(OCEAN_QUAKES_KEY, 0);
+
+		// loop through quakeMarkers, increase count if needed
+		for (Marker quakeMarker : this.quakeMarkers) {
+			// we know these are EarthquakeMarker, so we use explicit casting
+			EarthquakeMarker earthquakeMarker = (EarthquakeMarker) quakeMarker;
+			// that way, we can use isOnLand method to determine whether this earthquake is on land
+			if (earthquakeMarker.isOnLand()) {
+				// this means this marker is a LandQuakeMarker, cast it
+				LandQuakeMarker landQuakeMarker = (LandQuakeMarker) quakeMarker;
+				String countryName = landQuakeMarker.getCountry();
+				// check if country in landQuakeMarker is a valid HashMap key
+				if (this.countryEarchquakeCounts.containsKey(countryName)) {
+					int count = (int) this.countryEarchquakeCounts.get(countryName) + 1;
+					this.countryEarchquakeCounts.put(countryName, count);
+				}
+			}
+			else { // ocean
+				int count = (int) this.countryEarchquakeCounts.get(OCEAN_QUAKES_KEY) + 1;
+				this.countryEarchquakeCounts.put(OCEAN_QUAKES_KEY, count);
+			}
+		}
+
+		// print them out
+		// land
+		for (Map.Entry<String, Object> entry : this.countryEarchquakeCounts.entrySet()) {
+			if (!entry.getKey().equals(OCEAN_QUAKES_KEY) && (int) entry.getValue() > 0) {
+				System.out.println(entry.getKey() + " : " + entry.getValue());
+			}
+		}
+		// ocean
+		System.out.println(OCEAN_QUAKES_KEY + ": " + this.countryEarchquakeCounts.get(OCEAN_QUAKES_KEY));
 	}
-	
-	
-	
+
+
+
 	// helper method to test whether a given earthquake is in a given country
-	// This will also add the country property to the properties of the earthquake 
+	// This will also add the country property to the properties of the earthquake
 	// feature if it's in one of the countries.
 	// You should not have to modify this code
 	private boolean isInCountry(PointFeature earthquake, Marker country) {

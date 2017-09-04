@@ -63,6 +63,7 @@ public class EarthquakeCityMap extends PApplet {
 		    earthquakesURL = "2.5_week.atom"; 	// Same feed, saved Aug 7, 2015, for working offline
 		}
 		else {
+			// Google blocked me for multiple attempts. I'm using Microsoft's one instead
 			map = new UnfoldingMap(this, START_X_POSITION_MAP, 50, 700, 500, new Microsoft.AerialProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 			//earthquakesURL = "2.5_week.atom";
