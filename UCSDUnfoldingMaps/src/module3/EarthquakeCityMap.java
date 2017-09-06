@@ -15,7 +15,6 @@ import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
-import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 
@@ -53,7 +52,7 @@ public class EarthquakeCityMap extends PApplet {
 	// feed with magnitude 2.5+ Earthquakes
 	private String earthquakesURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
 
-	private List<MagnitudeKey> magnitudeKeys;
+	private List<LegendKey> legendKeys;
 	
 	public void setup() {
 		size(950, 600, OPENGL);
@@ -112,53 +111,53 @@ public class EarthquakeCityMap extends PApplet {
 		Object magObj = feature.getProperty("magnitude");
 		float mag = Float.parseFloat(magObj.toString());
 
-		// array of MagnitudeKey objects
-		this.magnitudeKeys = this.getMagnitudeKeys();
+		// array of LegendKey objects
+		this.legendKeys = this.getLegendKeys();
 
-		MagnitudeKey magnitudeKey;
+		LegendKey legendKey;
 		if (mag < THRESHOLD_LIGHT) { // small
-			magnitudeKey = this.getMagnitudeKeyforKey(MagnitudeKey.MAGNITUDE_KEY_SMALL);
+			legendKey = this.getMagnitudeKeyforKey(LegendKey.MAGNITUDE_KEY_SMALL);
 		}
 		else if (mag >= THRESHOLD_LIGHT && mag < THRESHOLD_MODERATE) { // light
-			magnitudeKey = this.getMagnitudeKeyforKey(MagnitudeKey.MAGNITUDE_KEY_LIGHT);
+			legendKey = this.getMagnitudeKeyforKey(LegendKey.MAGNITUDE_KEY_LIGHT);
 		}
 		else { // moderate
-			magnitudeKey = this.getMagnitudeKeyforKey(MagnitudeKey.MAGNITUDE_KEY_MODERATE);
+			legendKey = this.getMagnitudeKeyforKey(LegendKey.MAGNITUDE_KEY_MODERATE);
 		}
 		// update marker's radius and color
-		marker.setRadius(magnitudeKey.getRadius());
-		marker.setColor(magnitudeKey.getColor());
+		marker.setRadius(legendKey.getRadius());
+		marker.setColor(legendKey.getColor());
 	    
 	    // Finally return the marker
 	    return marker;
 	}
 
 	/**
-	 * Helper method creating a list of MagnitudeKey
+	 * Helper method creating a list of LegendKey
 	 * @return List
 	 */
-	private List<MagnitudeKey> getMagnitudeKeys() {
-		List<MagnitudeKey> magnitudeKeys = new ArrayList<>();
+	private List<LegendKey> getLegendKeys() {
+		List<LegendKey> legendKeys = new ArrayList<>();
 
-		MagnitudeKey moderate = new MagnitudeKey(MagnitudeKey.MAGNITUDE_KEY_MODERATE, color(225, 0, 0), THRESHOLD_MODERATE * 3, "5.0+ Magnitude");
-		magnitudeKeys.add(moderate);
-		MagnitudeKey light = new MagnitudeKey(MagnitudeKey.MAGNITUDE_KEY_LIGHT, color(225, 225, 0), THRESHOLD_MODERATE * 2, "4.0+ Magnitude");
-		magnitudeKeys.add(light);
-		MagnitudeKey small = new MagnitudeKey(MagnitudeKey.MAGNITUDE_KEY_SMALL, color(0, 0, 225), THRESHOLD_MODERATE, "Below 4.0");
-		magnitudeKeys.add(small);
+		LegendKey moderate = new LegendKey(LegendKey.MAGNITUDE_KEY_MODERATE, color(225, 0, 0), THRESHOLD_MODERATE * 3, "5.0+ Magnitude");
+		legendKeys.add(moderate);
+		LegendKey light = new LegendKey(LegendKey.MAGNITUDE_KEY_LIGHT, color(225, 225, 0), THRESHOLD_MODERATE * 2, "4.0+ Magnitude");
+		legendKeys.add(light);
+		LegendKey small = new LegendKey(LegendKey.MAGNITUDE_KEY_SMALL, color(0, 0, 225), THRESHOLD_MODERATE, "Below 4.0");
+		legendKeys.add(small);
 
-		return magnitudeKeys;
+		return legendKeys;
 	}
 
 	/**
-	 * Helper method to find MagnitudeKey given key
+	 * Helper method to find LegendKey given key
 	 * @param key a String
-	 * @return MagnitudeKey
+	 * @return LegendKey
 	 */
-	private MagnitudeKey getMagnitudeKeyforKey(String key) {
-		for (MagnitudeKey magnitudeKey : this.magnitudeKeys) {
-			if (magnitudeKey.getKey().equals(key)) {
-				return magnitudeKey;
+	private LegendKey getMagnitudeKeyforKey(String key) {
+		for (LegendKey legendKey : this.legendKeys) {
+			if (legendKey.getKey().equals(key)) {
+				return legendKey;
 			}
 		}
 		return null;
@@ -196,18 +195,18 @@ public class EarthquakeCityMap extends PApplet {
 		float spacingY = THRESHOLD_MODERATE * 6;
 
 		int count = 1;
-		for (MagnitudeKey magnitudeKey : this.magnitudeKeys) {
+		for (LegendKey legendKey : this.legendKeys) {
 			float curHeight = topLeftY + spacingY + spacingY * count;
 
 			// draw marker
-			fill(magnitudeKey.getColor());
-			ellipse(leftMargin + spacingY, curHeight, magnitudeKey.getRadius(), magnitudeKey.getRadius());
+			fill(legendKey.getColor());
+			ellipse(leftMargin + spacingY, curHeight, legendKey.getRadius(), legendKey.getRadius());
 
 			// draw text
 			textSize(12);
 			textAlign(LEFT);
 			fill(0.0f);
-			text(magnitudeKey.getDescription(), leftMargin + spacingY * 2, curHeight);
+			text(legendKey.getDescription(), leftMargin + spacingY * 2, curHeight);
 
 			count++;
 		}

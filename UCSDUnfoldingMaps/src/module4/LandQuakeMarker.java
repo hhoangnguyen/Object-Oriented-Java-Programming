@@ -31,18 +31,12 @@ public class LandQuakeMarker extends EarthquakeMarker {
 		
 		// HINT: Notice the radius variable in the EarthquakeMarker class
 		// and how it is set in the EarthquakeMarker constructor
-		
-		// TODO: Implement this method
+		pg.ellipse(x, y, SPACING * 2, SPACING * 2);
 		
 	}
-	
 
 	// Get the country the earthquake is in
 	public String getCountry() {
 		return (String) getProperty("country");
 	}
-
-
-
-		
 }

@@ -77,7 +77,7 @@ public class EarthquakeCityMap extends PApplet {
 		else {
 			map = new UnfoldingMap(this, 200, 50, 650, 600, new Microsoft.AerialProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-		    earthquakesURL = "2.5_week.atom";
+		    // earthquakesURL = "2.5_week.atom";
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
@@ -118,7 +118,7 @@ public class EarthquakeCityMap extends PApplet {
 	    }
 
 	    // could be used for debugging
-	    printQuakes();
+	    // printQuakes();
 	 		
 	    // (3) Add markers to map
 	    //     NOTE: Country markers are not added to the map.  They are used
@@ -138,9 +138,9 @@ public class EarthquakeCityMap extends PApplet {
 	
 	// helper method to draw key in GUI
 	// TODO: Update this method as appropriate
-	private void addKey() {	
+	private void addKey() {
 		// Remember you can use Processing's graphics methods here
-		fill(255, 250, 240);
+		/*fill(255, 250, 240);
 		rect(25, 50, 150, 250);
 		
 		fill(0);
@@ -158,7 +158,46 @@ public class EarthquakeCityMap extends PApplet {
 		fill(0, 0, 0);
 		text("5.0+ Magnitude", 75, 125);
 		text("4.0+ Magnitude", 75, 175);
-		text("Below 4.0", 75, 225);
+		text("Below 4.0", 75, 225);*/
+
+		int keyWidth = 10;
+
+		// container
+		fill(255, 250, 240);
+		rect(25, 50, 150, 250);
+
+		// key
+		fill(0);
+		textAlign(LEFT, CENTER);
+		textSize(12);
+		text("Earthquake Key", 50, 75);
+
+		fill(150, 30, 30);
+		triangle(50, 100, 50 + keyWidth/2, 100 + keyWidth, 50 - keyWidth/2, 100 + keyWidth);
+		fill(color(255, 255, 225));
+		ellipse(50, 125, keyWidth, keyWidth);
+		rect(50 - keyWidth/2, 150 - keyWidth/2, keyWidth, keyWidth);
+
+		fill(0, 0, 0);
+		text("City Marker", 75, 100);
+		text("Land Quake", 75, 125);
+		text("Ocean Quake", 75, 150);
+
+		// magnitude
+		textAlign(LEFT, CENTER);
+		text("Size - Magnitude", 50, 200);
+
+		fill(255, 255, 0);
+		ellipse(50, 225, keyWidth, keyWidth);
+		fill(color(0, 255, 0));
+		ellipse(50, 250, keyWidth, keyWidth);
+		fill(color(255, 0, 0));
+		ellipse(50, 275, keyWidth, keyWidth);
+
+		fill(0, 0, 0);
+		text("Shallow", 75, 225);
+		text("Intermediate", 75, 250);
+		text("Deep", 75, 275);
 	}
 
 	

@@ -1,6 +1,7 @@
 package module4;
 
 import de.fhpotsdam.unfolding.data.PointFeature;
+import processing.core.PConstants;
 import processing.core.PGraphics;
 
 /** Implements a visual marker for ocean earthquakes on an earthquake map
@@ -17,7 +18,6 @@ public class OceanQuakeMarker extends EarthquakeMarker {
 		// setting field in earthquake marker
 		isOnLand = false;
 	}
-	
 
 	@Override
 	public void drawEarthquake(PGraphics pg, float x, float y) {
@@ -28,13 +28,6 @@ public class OceanQuakeMarker extends EarthquakeMarker {
 		
 		// HINT: Notice the radius variable in the EarthquakeMarker class
 		// and how it is set in the EarthquakeMarker constructor
-		
-		// TODO: Implement this method
-		
+		pg.rect(x - SPACING, y - SPACING, SPACING * 2, SPACING * 2);
 	}
-	
-
-
-	
-
 }
