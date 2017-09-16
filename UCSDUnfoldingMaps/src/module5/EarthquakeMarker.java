@@ -93,8 +93,10 @@ public abstract class EarthquakeMarker extends CommonMarker
 	@Override
 	public void showTitle(PGraphics pg, float x, float y)
 	{
-		// TODO: Implement this method
-		
+		String title = (selected) ? getTitle() : "";
+		pg.fill(255);
+		pg.textSize(12);
+		pg.text(title, x, y);
 	}
 
 	
@@ -107,7 +109,7 @@ public abstract class EarthquakeMarker extends CommonMarker
 	 */
 	public double threatCircle() {	
 		double miles = 20.0f * Math.pow(1.8, 2*getMagnitude()-5);
-		double km = (miles * kmPerMile);
+		double km = (miles * kmPerMile) * 7; // modified to see more result ;)
 		return km;
 	}
 	

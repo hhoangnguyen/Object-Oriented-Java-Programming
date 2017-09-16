@@ -13,6 +13,7 @@ import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
+import de.fhpotsdam.unfolding.providers.Microsoft;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import parsing.ParseFeed;
 import processing.core.PApplet;
@@ -64,13 +65,13 @@ public class EarthquakeCityMap extends PApplet {
 	
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
-		size(900, 700, OPENGL);
+		size(900, 300, OPENGL);
 		if (offline) {
 		    map = new UnfoldingMap(this, 200, 50, 650, 600, new MBTilesMapProvider(mbTilesString));
 		    earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 200, 50, 650, 600, new Microsoft.AerialProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 		    //earthquakesURL = "2.5_week.atom";
 		}
@@ -105,7 +106,7 @@ public class EarthquakeCityMap extends PApplet {
 	    }
 
 	    // could be used for debugging
-	    printQuakes();
+	    //printQuakes();
 	 		
 	    // (3) Add markers to map
 	    //     NOTE: Country markers are not added to the map.  They are used
@@ -145,7 +146,45 @@ public class EarthquakeCityMap extends PApplet {
 	// 
 	private void selectMarkerIfHover(List<Marker> markers)
 	{
-		// TODO: Implement this method
+		for (Marker marker : markers) {
+			if (marker.isInside(map, mouseX, mouseY)) {
+				lastSelected = (CommonMarker) marker;
+				lastSelected.setSelected(true);
+				// break early as we only need 1 marker
+				break;
+			}
+		}
+	}
+
+	private void selectMarkerIfClick(List<Marker> markers)
+	{
+		Boolean isMarkerFound = false;
+		for (Marker marker : markers) {
+			if (marker.isInside(map, mouseX, mouseY)) {
+				isMarkerFound = true;
+
+				CommonMarker commonMarker = (CommonMarker) marker;
+				if (lastClicked == null) {
+					lastClicked = commonMarker;
+					lastClicked.setClicked(true);
+				}
+				else {
+					// de-select
+					if (commonMarker.equals(lastClicked)) {
+						unhideMarkers();
+						lastClicked.setClicked(false);
+						lastClicked = null;
+					}
+					else {
+						lastClicked = commonMarker;
+						lastClicked.setClicked(true);
+					}
+				}
+
+				// break early as we only need 1 marker
+				break;
+			}
+		}
 	}
 	
 	/** The event handler for mouse clicks
@@ -156,11 +195,57 @@ public class EarthquakeCityMap extends PApplet {
 	@Override
 	public void mouseClicked()
 	{
-		// TODO: Implement this method
-		// Hint: You probably want a helper method or two to keep this code
-		// from getting too long/disorganized
+		selectMarkerIfClick(quakeMarkers);
+		selectMarkerIfClick(cityMarkers);
+
+		if (lastClicked != null) {
+			hideMarkers();
+			// if marker is a CityMarker
+			if (lastClicked instanceof CityMarker) {
+				showAllEarthquakeContainCity();
+			}
+			else {
+				showAllCityWithinEarthquakeThreatCircle();
+			}
+
+			// we probably hid current marker, show it again
+			lastClicked.setHidden(false);
+		}
 	}
-	
+
+	private void showAllEarthquakeContainCity() {
+		for (Marker marker : quakeMarkers) {
+			EarthquakeMarker earthquakeMarker = (EarthquakeMarker) marker;
+			double distance = lastClicked.getDistanceTo(earthquakeMarker.getLocation());
+			if (distance < earthquakeMarker.threatCircle()) {
+				System.out.println("earthquake");
+				earthquakeMarker.setHidden(false);
+			}
+		}
+	}
+
+	private void showAllCityWithinEarthquakeThreatCircle() {
+		EarthquakeMarker earthquakeMarker = (EarthquakeMarker) lastClicked;
+		for (Marker marker : cityMarkers) {
+			CityMarker cityMarker = (CityMarker) marker;
+			double distance = cityMarker.getDistanceTo(earthquakeMarker.getLocation());
+			System.out.println(distance + " " + earthquakeMarker.threatCircle());
+			if (distance < earthquakeMarker.threatCircle()) {
+				System.out.println("city");
+				cityMarker.setHidden(false);
+			}
+		}
+	}
+
+	private void hideMarkers() {
+		for(Marker marker : quakeMarkers) {
+			marker.setHidden(true);
+		}
+
+		for(Marker marker : cityMarkers) {
+			marker.setHidden(true);
+		}
+	}
 	
 	// loop over and unhide all markers
 	private void unhideMarkers() {
