@@ -1,7 +1,9 @@
 package module6;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
@@ -14,6 +16,7 @@ import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
+import de.fhpotsdam.unfolding.providers.Microsoft;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import parsing.ParseFeed;
 import processing.core.PApplet;
@@ -73,7 +76,7 @@ public class EarthquakeCityMap extends PApplet {
 		    earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 200, 50, 650, 600, new Microsoft.AerialProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 		    //earthquakesURL = "2.5_week.atom";
 		}
@@ -116,7 +119,7 @@ public class EarthquakeCityMap extends PApplet {
 	    }
 
 	    // could be used for debugging
-	    printQuakes();
+	    // printQuakes();
 	 		
 	    // (3) Add markers to map
 	    //     NOTE: Country markers are not added to the map.  They are used
@@ -124,8 +127,37 @@ public class EarthquakeCityMap extends PApplet {
 	    map.addMarkers(quakeMarkers);
 	    map.addMarkers(cityMarkers);
 	    
-	    
+	    sortAndPrint(3);
 	}  // End setup
+
+	/**
+	 * create a new array from the list of earthquake markers
+	 * then sort the array of earthquake markers in reverse order of their magnitude
+	 * then print out the top numToPrint earthquakes
+	 * If numToPrint is larger than the number of markers in quakeMarkers, it should print out all of the earthquakes and stop, but it should not crash
+	 * @param numToPrint int
+	 */
+	private void sortAndPrint(int numToPrint) {
+		ArrayList<EarthquakeMarker> earthquakeMarkers = new ArrayList<>();
+
+		for (Marker marker : quakeMarkers) {
+			EarthquakeMarker earthquakeMarker = (EarthquakeMarker) marker;
+			earthquakeMarkers.add(earthquakeMarker);
+		}
+
+		// if numToPrint is larger than number of markers, set numToPrint to array length
+		if (numToPrint > earthquakeMarkers.size()) numToPrint = earthquakeMarkers.size();
+
+		Collections.sort(earthquakeMarkers);
+
+		int counter = 0;
+		for (EarthquakeMarker earthquakeMarker : earthquakeMarkers) {
+			if (counter < numToPrint) {
+				System.out.println(earthquakeMarker.getTitle());
+				counter++;
+			}
+		}
+	}
 	
 	
 	public void draw() {
