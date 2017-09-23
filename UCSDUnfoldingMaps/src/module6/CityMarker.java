@@ -70,12 +70,12 @@ public class CityMarker extends CommonMarker {
 		pg.popStyle();
 	}
 	
-	private String getCity()
+	public String getCity()
 	{
 		return getStringProperty("name");
 	}
 	
-	private String getCountry()
+	public String getCountry()
 	{
 		return getStringProperty("country");
 	}

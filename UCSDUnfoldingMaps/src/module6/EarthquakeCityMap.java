@@ -67,6 +67,8 @@ public class EarthquakeCityMap extends PApplet {
 	// NEW IN MODULE 5
 	private CommonMarker lastSelected;
 	private CommonMarker lastClicked;
+
+	private ArrayList<EarthquakeMarker> quakeForCurrentCityMarkers;
 	
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
@@ -127,7 +129,9 @@ public class EarthquakeCityMap extends PApplet {
 	    map.addMarkers(quakeMarkers);
 	    map.addMarkers(cityMarkers);
 	    
-	    sortAndPrint(3);
+	    sortAndPrint(100);
+
+	    quakeForCurrentCityMarkers = new ArrayList<>();
 	}  // End setup
 
 	/**
@@ -227,6 +231,22 @@ public class EarthquakeCityMap extends PApplet {
 				checkCitiesForClick();
 			}
 		}
+
+		updateUnhideQuakeMarkers();
+	}
+
+	private void updateUnhideQuakeMarkers() {
+		// clear out current markers already in the list
+		quakeForCurrentCityMarkers.clear();
+
+		// add non-hidden quake markers to the list
+		for (Marker marker : quakeMarkers) {
+			if (!marker.isHidden() && !quakeForCurrentCityMarkers.contains(marker)) {
+				EarthquakeMarker earthquakeMarker = (EarthquakeMarker) marker;
+				quakeForCurrentCityMarkers.add(earthquakeMarker);
+			}
+		}
+		Collections.sort(quakeForCurrentCityMarkers);
 	}
 	
 	// Helper method that will check if a city marker was clicked on
@@ -354,11 +374,46 @@ public class EarthquakeCityMap extends PApplet {
 		strokeWeight(2);
 		line(centerx-8, centery-8, centerx+8, centery+8);
 		line(centerx-8, centery+8, centerx+8, centery-8);
-		
-		
+
+		// if clicked on a CityMarker instance
+		if (lastClicked instanceof CityMarker) {
+			int startX = xbase;
+			int startY = ybase + 300;
+			rect(xbase, startY, 150, 130);
+			getCityDetail(startX, startY);
+		}
 	}
 
-	
+	/**
+	 * Helper method to get city detail
+	 * @param startX int
+	 * @param startY int
+	 */
+	private void getCityDetail(int startX, int startY) {
+		CityMarker cityMarker = (CityMarker) lastClicked;
+
+		int textSize = 12;
+		fill(0, 0, 0);
+		textAlign(LEFT, CENTER);
+		textSize(textSize);
+
+		// country
+		text("Country: " + cityMarker.getCountry(), startX + textSize, startY + textSize);
+
+		// city name
+		text("City: " + cityMarker.getCity(), startX + textSize, startY + textSize * 3);
+
+		// number of earthquakes
+		text("Earthquakes: " + quakeForCurrentCityMarkers.size(), startX + textSize, startY + textSize * 5);
+
+		// largest earthquake
+		EarthquakeMarker largestMagnitudeEarthquake = quakeForCurrentCityMarkers.get(0);
+		text("Largest: M " + largestMagnitudeEarthquake.getMagnitude(), startX + textSize, startY + textSize * 7);
+
+		// smallest earthquake
+		EarthquakeMarker smallestMagnitudeEarthquake = quakeForCurrentCityMarkers.get(quakeForCurrentCityMarkers.size() - 1);
+		text("Smallest: M " + smallestMagnitudeEarthquake.getMagnitude(), startX + textSize, startY + textSize * 9);
+	}
 	
 	// Checks whether this quake occurred on land.  If it did, it sets the 
 	// "country" property of its PointFeature to the country where it occurred

@@ -130,7 +130,7 @@ public abstract class EarthquakeMarker extends CommonMarker implements Comparabl
 	 */
 	public double threatCircle() {	
 		double miles = 20.0f * Math.pow(1.8, 2*getMagnitude()-5);
-		double km = (miles * kmPerMile);
+		double km = (miles * kmPerMile) * 7;
 		return km;
 	}
 	
