@@ -20,7 +20,7 @@ public class BasicDocument extends Document
 	
 	/**
 	 * Get the number of words in the document.
-	 * A "word" is defined as a contiguous string of alphabetic characters
+	 * A "word" is defined as a contiguous strin                 g of alphabetic characters
 	 * i.e. any upper or lower case characters a-z or A-Z.  This method completely 
 	 * ignores numbers when you count words, and assumes that the document does not have 
 	 * any strings that combine numbers and letters. 
@@ -34,9 +34,10 @@ public class BasicDocument extends Document
 	@Override
 	public int getNumWords()
 	{
-		//TODO: Implement this method in week 2 according to the comments above.  
-		// See the Module 2 support videos if you need help.
-	    return 0;
+		// match all letters
+		List words = this.getTokens("[a-zA-Z]+");
+
+	    return words.size();
 	}
 	
 	/**
@@ -54,9 +55,11 @@ public class BasicDocument extends Document
 	@Override
 	public int getNumSentences()
 	{
-	    //TODO: Implement this method.  See the Module 2 support videos 
-        // if you need help.
-        return 0;
+	    List sentences = this.getTokens("[\\?\\!\\.]+");
+
+	    List lastContiguousSetWithoutPunctuationMark = this.getTokens("[^\\.\\!\\? ]$");
+
+        return sentences.size() + lastContiguousSetWithoutPunctuationMark.size();
 	}
 	
 	/**
@@ -76,12 +79,16 @@ public class BasicDocument extends Document
 	@Override
 	public int getNumSyllables()
 	{
-	    //TODO: Implement this method in week 2.  See the Module 2 support videos 
-        // if you need help.  And note that there is no need to use a regular
-		// expression for the syllable counting.  We recommend you implement 
-		// the helper function countSyllables in Document.java using a loop, 
-		// and then call it here on each word.
-        return 0;
+		// match all letters
+		List words = this.getTokens("[a-zA-Z]+");
+
+		int numSyllables = 0;
+		for (Object object : words) {
+			String word = (String) object;
+			numSyllables += countSyllables(word);
+		}
+
+        return numSyllables;
 	}
 	
 	

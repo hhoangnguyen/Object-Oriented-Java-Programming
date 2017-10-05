@@ -52,6 +52,12 @@ public class MainApp extends Application {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+
+		String s = "one (1), two (2), three (3)";
+		String[] array = s.split("[a-z]+|[()0-9]+");
+		for (String str : array) {
+			System.out.println(str);
+		}
 		
 		showTextProApp();
 	}

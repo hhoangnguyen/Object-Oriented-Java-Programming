@@ -64,10 +64,58 @@ public abstract class Document {
 	 */
 	protected int countSyllables(String word)
 	{
-		// TODO: Implement this method so that you can call it from the 
-	    // getNumSyllables method in BasicDocument (module 2) and 
-	    // EfficientDocument (module 3).
-	    return 0;
+		// vowels
+		String vowels = "eyuioaEYUIOA";
+
+		// each contiguous sequence of one or more vowels
+
+		// counters
+		int syllableCount = 0;
+		int prev = -1;
+		int cur = 0;
+
+		char[] wordArray = word.toCharArray();
+		for (char chr : wordArray) {
+			// first character is a vowel
+			if (cur == 0) {
+				if (vowels.indexOf(wordArray[cur]) > -1) {
+					syllableCount++;
+				}
+			}
+
+			// found char in word
+			if (vowels.indexOf(chr) > -1) {
+				if (prev >= 0) {
+					// if previous is not a char, increase syllable count
+					if (vowels.indexOf(wordArray[prev]) == -1) {
+						syllableCount++;
+					}
+				}
+			}
+
+			prev++;
+			cur++;
+		}
+
+		// a lone "e" at the end of a word is not considered a syllable unless the word has no other syllables
+		char lastChr = wordArray[wordArray.length-1];
+
+		// find lone e
+
+		// last char is 'e'
+		if ("e".indexOf(lastChr) > -1) {
+			if (word.length() >= 2) {
+				char nextToLastChr = wordArray[wordArray.length-2];
+				// character before is not a vowel => this is a lone 'e'
+				if (vowels.indexOf(nextToLastChr) == -1) {
+					if (syllableCount > 1) {
+						syllableCount--;
+					}
+				}
+			}
+		}
+
+	    return syllableCount;
 	}
 	
 	/** A method for testing
@@ -130,9 +178,10 @@ public abstract class Document {
 	/** return the Flesch readability score of this document */
 	public double getFleschScore()
 	{
-	    // TODO: You will play with this method in week 1, and 
-		// then implement it in week 2
-	    return 0.0;
+		double fleshScore = 206.835
+				- 1.015 * this.getNumWords() / this.getNumSentences()
+				- 84.6 * this.getNumSyllables() / this.getNumWords();
+	    return fleshScore;
 	}
 	
 	
