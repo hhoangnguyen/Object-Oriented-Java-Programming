@@ -57,8 +57,32 @@ public class DocumentBenchmarking {
 			 *     b. Calls fleshScore on this document
 			 * 6. Print out the time it took to complete the loop in step 5 
 			 *      (on the same line as the first print statement) followed by a newline (\n) 
-			 */  
-			 
+			 */
+
+			long timeStart;
+			long timeEnd;
+
+			System.out.print(numToCheck + "\t");
+			String testString = getStringFromFile(textfile, numToCheck);
+
+			// BasicDocument
+			timeStart = System.nanoTime();
+			Document document;
+			for (int trial=0; trial < trials; trial++) {
+				document = new BasicDocument(testString);
+				document.getFleschScore();
+			}
+			timeEnd = System.nanoTime();
+			System.out.print(timeEnd - timeStart + "\t");
+
+			// EfficientDocument
+			timeStart = System.nanoTime();
+			for (int trial=0; trial < trials; trial++) {
+				document = new EfficientDocument(testString);
+				document.getFleschScore();
+			}
+			timeEnd = System.nanoTime();
+			System.out.print(timeEnd - timeStart + "\n");
 		}
 	
 	}
