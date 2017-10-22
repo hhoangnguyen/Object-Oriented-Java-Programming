@@ -82,5 +82,8 @@ class TrieNode {
 		return children.keySet();
 	}
 
+	public HashMap<Character, TrieNode> getChildren() {
+		return children;
+	}
 }
 

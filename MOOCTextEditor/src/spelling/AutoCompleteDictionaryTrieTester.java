@@ -19,9 +19,9 @@ public class AutoCompleteDictionaryTrieTester {
 
 	private String dictFile = "data/words.small.txt"; 
 
-	AutoCompleteDictionaryTrie emptyDict; 
-	AutoCompleteDictionaryTrie smallDict;
-	AutoCompleteDictionaryTrie largeDict;
+	private AutoCompleteDictionaryTrie emptyDict;
+	private AutoCompleteDictionaryTrie smallDict;
+	private AutoCompleteDictionaryTrie largeDict;
 	
 	/**
 	 * @throws java.lang.Exception
@@ -44,6 +44,7 @@ public class AutoCompleteDictionaryTrieTester {
 		smallDict.addWord("subsequent");
 		
 		DictionaryLoader.loadDictionary(largeDict, dictFile);
+
 	}
 
 	
@@ -61,6 +62,7 @@ public class AutoCompleteDictionaryTrieTester {
 	@Test
 	public void testIsWord()
 	{
+		assertEquals("Testing isWord on small: he", false, smallDict.isWord("hel"));
 		assertEquals("Testing isWord on empty: Hello", false, emptyDict.isWord("Hello"));
 		assertEquals("Testing isWord on small: Hello", true, smallDict.isWord("Hello"));
 		assertEquals("Testing isWord on large: Hello", true, largeDict.isWord("Hello"));
@@ -88,8 +90,6 @@ public class AutoCompleteDictionaryTrieTester {
 	@Test
 	public void testAddWord()
 	{
-		
-		
 		assertEquals("Asserting hellow is not in empty dict", false, emptyDict.isWord("hellow"));
 		assertEquals("Asserting hellow is not in small dict", false, smallDict.isWord("hellow"));
 		assertEquals("Asserting hellow is not in large dict", false, largeDict.isWord("hellow"));
@@ -132,6 +132,7 @@ public class AutoCompleteDictionaryTrieTester {
 	@Test
 	public void testPredictCompletions()
 	{
+		//smallDict.printTree();
 		List<String> completions;
 		completions = smallDict.predictCompletions("", 0);
 		assertEquals(0, completions.size());
