@@ -60,6 +60,8 @@ public class WPTreeGrader {
             
             feedback += "** Test #4: Testing using a nonexistent word...";
             feedback += "Your path was: " + printPath(path) + ".\n";
+
+            System.out.println(feedback);
         } catch (Exception e) {
             out.println(e);
             out.close();

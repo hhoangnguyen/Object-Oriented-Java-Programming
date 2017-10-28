@@ -26,10 +26,9 @@ public class WPTree implements WordPath {
 	// You'll need to create your own NearbyWords object here.
 	public WPTree () {
 		this.root = null;
-		// TODO initialize a NearbyWords object
-		// Dictionary d = new DictionaryHashSet();
-		// DictionaryLoader.loadDictionary(d, "data/dict.txt");
-		// this.nw = new NearbyWords(d);
+        Dictionary d = new DictionaryHashSet();
+        DictionaryLoader.loadDictionary(d, "data/dict.txt");
+        this.nw = new NearbyWords(d);
 	}
 	
 	//This constructor will be used by the grader code
@@ -41,7 +40,53 @@ public class WPTree implements WordPath {
 	// see method description in WordPath interface
 	public List<String> findPath(String word1, String word2) 
 	{
-	    // TODO: Implement this method.
+        // Input:  word1 which is the start word
+        // Input:  word2 which is the target word
+        // Output: list of a path from word1 to word2 (or null)
+        //
+        // Create a queue of WPTreeNodes to hold words to explore
+        LinkedList<WPTreeNode> queue = new LinkedList<>();
+        // Create a visited set to avoid looking at the same word repeatedly
+        HashSet<String> visited = new HashSet<>();
+
+        // Set the root to be a WPTreeNode containing word1
+        this.root = new WPTreeNode(word1, null);
+        WPTreeNode curr = this.root;
+
+        // Add the initial word to visited
+        visited.add(curr.getWord());
+
+        // Add root to the queue
+        queue.add(curr);
+
+        // while the queue has elements and we have not yet found word2
+        while (!queue.isEmpty() && !visited.contains(word2)) {
+            // remove the node from the start of the queue and assign to curr
+            curr = queue.remove();
+
+            // get a list of real word neighbors (one mutation from curr's word)
+            List<String> neighbors = nw.distanceOne(curr.getWord(), true);
+
+            // for each n in the list of neighbors
+            for (String n : neighbors) {
+                // if n is not visited
+                if (!visited.contains(n)) {
+                    // add n as a child of curr
+                    WPTreeNode child = curr.addChild(n);
+                    // add n to the visited set
+                    visited.add(n);
+                    // add the node for n to the back of the queue
+                    queue.add(child);
+                    // if n is word2
+                    if (n.equals(word2)) {
+                        // return the path from child to root
+                        return child.buildPathToRoot();
+                    }
+                }
+            }
+        }
+
+        // return null as no path exists
 	    return new LinkedList<String>();
 	}
 	

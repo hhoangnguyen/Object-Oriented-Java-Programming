@@ -10,7 +10,6 @@ public class NearbyWordsGraderTwo {
         int incorrect = 0;
         String feedback = "";
         PrintWriter out;
-
         try {
             out = new PrintWriter("grader_output/module5.part2.out");
         } catch (Exception e) {
@@ -35,6 +34,7 @@ public class NearbyWordsGraderTwo {
 
             feedback += "\n** Test 3: 3 suggestions... ";
             d1 = nw.suggestions("fare", 3);
+            System.out.println(d1);
             feedback += "" + d1.size() + " suggestions returned.\n";
 
             feedback += "** Test 4: Checking suggestion correctness... ";
@@ -43,6 +43,8 @@ public class NearbyWordsGraderTwo {
                 feedback += i + ", ";
             }
             feedback += "\n";
+
+            System.out.println(feedback);
             
         } catch (Exception e) {
             out.println(feedback + "Runtime error: " + e);
