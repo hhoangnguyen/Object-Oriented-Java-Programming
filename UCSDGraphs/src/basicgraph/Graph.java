@@ -121,8 +121,18 @@ public abstract class Graph {
 	 * @return The degree sequence of this graph.
 	 */
 	public List<Integer> degreeSequence() {
-		// XXX: Implement in part 1 of week 2
-		return null;
+		List<Integer> degrees = new ArrayList<>();
+		// loop through each index til largest vertex's index
+		for (int index=0; index < this.getNumVertices(); index++) {
+			degrees.add(this.getInNeighbors(index).size() + this.getNeighbors(index).size());
+		}
+
+		// sort in descending order
+		if (degrees.size() > 0) {
+			Collections.sort(degrees, (a, b) -> b.compareTo(a));
+		}
+
+		return (degrees.size() > 0) ? degrees : null;
 	}
 	
 	/**
