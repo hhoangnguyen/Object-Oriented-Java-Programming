@@ -89,7 +89,7 @@ public class DijkstraGrader implements Runnable {
                 feedback += "PASSED.";
                 correct++;
             } else {
-                feedback += "FAILED. Your implementation returned null; expected \n" + printPath(corr.path) + ".";
+                feedback += "FAILED. \n Your implementation returned null; expected \n" + printPath(corr.path) + ".";
             }
         } else if (path.size() != corr.path.size() || !corr.path.containsAll(path)) {
             feedback += "FAILED. Expected: \n" + printPath(corr.path) + "Got: \n" + printPath(path);
