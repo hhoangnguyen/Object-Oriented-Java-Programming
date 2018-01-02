@@ -271,74 +271,8 @@ public class MapGraph {
      */
     public List<GeographicPoint> dijkstra(GeographicPoint start,
                                           GeographicPoint goal, Consumer<GeographicPoint> nodeSearched) {
-        // Initialize priority queue, visited, parentMap
-        PriorityQueue<MapNode> toExplore = new PriorityQueue<>();
-        HashSet<MapNode> visited = new HashSet<>();
-        HashMap<MapNode, MapNode> parentMap = new HashMap<>();
-
-        this.resetAllDistances();
-
-        // Get start and end MapNode
-        MapNode startNode = this.getMapNodeByLocation(start);
-        MapNode endNode = this.getMapNodeByLocation(goal);
-
-        // flag to stop if found endNode
-        boolean found = false;
-
-        // set startNode distance and add to the queue
-        if (startNode != null) startNode.setDistance(0.0);
-        toExplore.add(startNode);
-
-        int nodeCount = 0;
-
-        while (!toExplore.isEmpty()) {
-            // dequeue from front of queue
-            MapNode curNode = toExplore.remove();
-            nodeCount++;
-            //if (debug) System.out.println("DIJKSTRA visiting" + curNode);
-
-            // Hook for visualization.
-            nodeSearched.accept(curNode.getLocation());
-
-            if (!visited.contains(curNode)) {
-                // add to visited HashSet
-                visited.add(curNode);
-
-                // if found, break out of while loop
-                if (curNode.equals(endNode)) {
-                    found = true;
-                    break;
-                }
-
-                // loop through each out-going edges to get neighbor MapNodes
-                for (MapEdge edge : curNode.getEdges()) {
-                    MapNode neighborNode = edge.getEndNode();
-
-                    // if neighborNode is not yet visited
-                    if (!visited.contains(neighborNode)) {
-                        double distanceFromCurNode = curNode.getDistance() + edge.getLength();
-
-                        // and path through curNode to neighborNode is shorter
-                        if (distanceFromCurNode < neighborNode.getDistance()) {
-                            // update distance, parentMap, and add to the queue
-                            neighborNode.setDistance(distanceFromCurNode);
-                            parentMap.put(neighborNode, curNode);
-                            toExplore.add(neighborNode);
-                        }
-                    }
-                }
-            }
-        }
-        if (debug) System.out.println("Dijkstra - Nodes visited in search: " + nodeCount);
-
-        // if not found, return null
-        if (!found) {
-            System.out.println("Dijkstra: No path exists");
-            return null;
-        }
-
-        // Reconstruct the parent path
-        return reconstructPath(parentMap, startNode, endNode);
+        return shortestPath(start, goal, nodeSearched,
+                new PriorityDijkstra());
     }
 
     /** Find the path from start to goal using A-Star search
@@ -365,28 +299,38 @@ public class MapGraph {
      */
     public List<GeographicPoint> aStarSearch(GeographicPoint start,
                                              GeographicPoint goal, Consumer<GeographicPoint> nodeSearched) {
+        return shortestPath(start, goal, nodeSearched,
+                new PriorityAStar());
+    }
+
+    /** Find the path from start to goal using Dijkstra's algorithm
+     *
+     * @param start The starting location
+     * @param goal The goal location
+     * @param nodeSearched A hook for visualization.  See assignment instructions for how to use it.
+     * @return The list of intersections that form the shortest path from
+     *   start to goal (including both start and goal).
+     */
+    private List<GeographicPoint> shortestPath(GeographicPoint start,
+                                          GeographicPoint goal, Consumer<GeographicPoint> nodeSearched,
+                                          Priority priority) {
         // Initialize priority queue, visited, parentMap
         PriorityQueue<MapNode> toExplore = new PriorityQueue<>();
         HashSet<MapNode> visited = new HashSet<>();
         HashMap<MapNode, MapNode> parentMap = new HashMap<>();
 
-        this.resetAllDistances();
+        priority.resetNodes(this.getVertices(), this.pointNodeMap);
 
         // Get start and end MapNode
         MapNode startNode = this.getMapNodeByLocation(start);
         MapNode endNode = this.getMapNodeByLocation(goal);
 
-        // startNode location
-        GeographicPoint endNodeLocation = (endNode != null) ? endNode.getLocation() : new GeographicPoint(0, 0);
-
         // flag to stop if found endNode
         boolean found = false;
 
-        // set startNode distance and add to the queue
-        if (startNode != null) {
-            startNode.setDistance(0.0);
-            startNode.setPredictedDistance(0.0);
-        }
+        // initialize start node
+        priority.initializeStartNode(startNode);
+
         toExplore.add(startNode);
 
         int nodeCount = 0;
@@ -395,7 +339,7 @@ public class MapGraph {
             // dequeue from front of queue
             MapNode curNode = toExplore.remove();
             nodeCount++;
-            //if (debug) System.out.println("A* visiting" + curNode + "\n");
+            //if (debug) System.out.println(priority.getName() + " visiting" + curNode);
 
             // Hook for visualization.
             nodeSearched.accept(curNode.getLocation());
@@ -416,20 +360,7 @@ public class MapGraph {
 
                     // if neighborNode is not yet visited
                     if (!visited.contains(neighborNode)) {
-                        /*
-                        Calculate estimate distance f(n) = g(n) + h(n) where
-                        g(n) = distance at curNode + length from curNode to neighborNode
-                        h(n) = heuristic distance from endNode to neighborNode
-                         */
-                        double distanceFromCurNode = curNode.getDistance() + edge.getLength();
-                        double heuristicDistanceFromEndNodeToNeighborNode = endNodeLocation.distance(neighborNode.getLocation());
-                        double predictedDistance = distanceFromCurNode + heuristicDistanceFromEndNodeToNeighborNode;
-
-                        // and path through curNode to neighborNode is shorter
-                        if (predictedDistance < neighborNode.getPredictedDistance()) {
-                            // update distance, predictedDistance, parentMap, and add to the queue
-                            neighborNode.setDistance(distanceFromCurNode);
-                            neighborNode.setPredictedDistance(predictedDistance);
+                        if (priority.updateNode(startNode, endNode, curNode, edge)) {
                             parentMap.put(neighborNode, curNode);
                             toExplore.add(neighborNode);
                         }
@@ -437,18 +368,17 @@ public class MapGraph {
                 }
             }
         }
-        if (debug) System.out.println("A* - Nodes visited in search: " + nodeCount);
+        if (debug) System.out.println(priority.getName() + " - Nodes visited in search: " + nodeCount);
 
         // if not found, return null
         if (!found) {
-            System.out.println("AStar: No path exists");
+            System.out.println(priority.getName() + ": No path exists");
             return null;
         }
 
         // Reconstruct the parent path
         return reconstructPath(parentMap, startNode, endNode);
     }
-
 
     public static void main(String[] args) {
         MapGraph simpleTestMap = new MapGraph();
