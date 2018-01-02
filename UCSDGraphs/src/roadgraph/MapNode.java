@@ -25,6 +25,7 @@ class MapNode implements Comparable {
     private GeographicPoint location;
 
     private double distance = Double.POSITIVE_INFINITY;
+    private double predictedDistance = Double.POSITIVE_INFINITY;
 
     /**
      * Create a new MapNode at a given Geographic location
@@ -139,9 +140,27 @@ class MapNode implements Comparable {
         this.distance = distance;
     }
 
+    public double getPredictedDistance() {
+        return predictedDistance;
+    }
+
+    public void setPredictedDistance(double predictedDistance) {
+        this.predictedDistance = predictedDistance;
+    }
+
     @Override
     public int compareTo(Object o) {
         MapNode other = (MapNode) o;
-        return (this.getDistance() >= other.getDistance()) ? 1 : -1;
+
+        /*
+        Switch between using distance and predictedDistance
+        Dijkstra won't be using predictedDistance so they're all POSITIVE_INFINITY
+         */
+        if (this.getPredictedDistance() != Double.POSITIVE_INFINITY) {
+            return (this.getPredictedDistance() >= other.getPredictedDistance()) ? 1 : -1;
+        }
+        else {
+            return (this.getDistance() >= other.getDistance()) ? 1 : -1;
+        }
     }
 }
